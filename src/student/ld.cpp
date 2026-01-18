@@ -387,11 +387,13 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
             if (!reloc.symbol.empty() && reloc.symbol[0] == '.') {
                 bool found = false;
                 
+                // 遍历所有目标文件查找本地符号
                 for (size_t obj_idx = 0; obj_idx < all_objects.size(); obj_idx++) {
                     auto local_sym_it = local_symbols_by_obj[obj_idx].find(reloc.symbol);
                     if (local_sym_it != local_symbols_by_obj[obj_idx].end()) {
                         const Symbol& target_sym = local_sym_it->second;
                         
+                        // 计算符号地址
                         if (!target_sym.section.empty()) {
                             auto map_it = sec_to_output.find(target_sym.section);
                             if (map_it != sec_to_output.end()) {
@@ -473,7 +475,10 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
                     }
                     
                     if (!points_to_bss) {
-                        throw std::runtime_error("Relocation offset out of bounds");
+                        throw std::runtime_error("Relocation offset out of bounds: offset=" + 
+                                                std::to_string(reloc.offset) + 
+                                                ", size=" + std::to_string(out_sec.data.size()) + 
+                                                ", reloc_size=" + std::to_string(reloc_size));
                     }
                 }
                 continue;
